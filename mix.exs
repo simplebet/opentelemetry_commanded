@@ -1,0 +1,36 @@
+defmodule OpentelemetryCommanded.MixProject do
+  use Mix.Project
+
+  def project do
+    [
+      app: :opentelemetry_commanded,
+      version: "0.1.0",
+      elixir: "~> 1.10",
+      start_permanent: Mix.env() == :prod,
+      package: package(),
+      deps: deps()
+    ]
+  end
+
+  # Run "mix help compile.app" to learn about applications.
+  def application do
+    []
+  end
+
+  defp package do
+    [
+      licenses: ["Apache-2"],
+      links: %{"GitHub" => "https://github.com/SimpleBet/opentelemetry_commanded"}
+    ]
+  end
+
+  defp deps do
+    [
+      {:commanded, "~> 1.2"},
+      {:telemetry, "~> 0.4.0"},
+      {:opentelemetry_api, "~> 0.4.1"},
+      {:opentelemetry, "~> 0.4.1"},
+      {:ex_doc, "~> 0.23.0", only: [:dev], runtime: false}
+    ]
+  end
+end

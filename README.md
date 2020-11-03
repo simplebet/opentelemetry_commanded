@@ -1,3 +1,5 @@
+# OpentelemetryCommanded
+
 Telemetry handler that creates OpenTelemetry spans from Commanded commands and events.
 
 ## Supported spans
@@ -27,7 +29,11 @@ Once installed, execute the following function in your application behaviour bef
 OpentelemetryCommanded.setup()
 ```
 
-Then, 
+Then add the `OpentelemetryCommanded` to your `Commanded` routers
+
+``` elixir
+middleware OpentelemetryCommanded.Middleware
+```
 
 ## Documentation
 [https://hexdocs.pm/opentelemetry_commanded](https://hexdocs.pm/opentelemetry_commanded).

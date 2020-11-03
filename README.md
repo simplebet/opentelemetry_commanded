@@ -1,6 +1,6 @@
 # OpentelemetryCommanded
 
-Telemetry handler that creates OpenTelemetry spans from Commanded commands and events.
+Telemetry handler that creates OpenTelemetry spans from [Commanded](https://github.com/commanded/commanded) commands and events.
 
 ## Supported spans
 

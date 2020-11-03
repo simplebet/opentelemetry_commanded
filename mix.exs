@@ -8,7 +8,10 @@ defmodule OpentelemetryCommanded.MixProject do
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       package: package(),
-      deps: deps()
+      deps: deps(),
+      description: "Trace Commanded CRQS operations with OpenTelemetry",
+      source_url: "https://github.com/SimpleBet/opentelemetry_commanded",
+      homepage_url: "https://github.com/SimpleBet/opentelemetry_commanded"
     ]
   end
 

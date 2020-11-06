@@ -31,7 +31,8 @@ defmodule OpentelemetryCommanded.EventHandler do
     )
   end
 
-  def handle_start(_event, _measurements, %{recorded_event: event, handler_state: handler}, _) do
+  def handle_start(_event, _measurements, meta, _) do
+    event = meta.recorded_event
     ctx = decode_ctx(event.metadata["trace_ctx"])
 
     attributes = [
@@ -42,11 +43,13 @@ defmodule OpentelemetryCommanded.EventHandler do
       "event.type": event.event_type,
       "stream.id": event.stream_id,
       "stream.version": event.stream_version,
-      application: handler.application,
-      consistency: handler.consistency,
-      "handler.module": handler.handler_module,
-      "handler.name": handler.handler_name,
-      "event.last_seen": handler.last_seen_event
+      application: meta.application,
+      # TODO add back
+      # consistency: meta.consistency,
+      "handler.module": meta.handler_module,
+      "handler.name": meta.handler_name
+      #  TODO add this back into commanded
+      # "event.last_seen": meta.last_seen_event
     ]
 
     Tracer.start_span("commanded:event:handle", %{

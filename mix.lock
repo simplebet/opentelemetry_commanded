@@ -1,6 +1,6 @@
 %{
   "backoff": {:hex, :backoff, "1.1.6", "83b72ed2108ba1ee8f7d1c22e0b4a00cfe3593a67dbc792799e8cce9f42f796b", [:rebar3], [], "hexpm", "cf0cfff8995fb20562f822e5cc47d8ccf664c5ecdc26a684cbe85c225f9d7c39"},
-  "commanded": {:hex, :commanded, "1.2.0", "d0c604e885132cbca875c238b741e0e2059c54395b4087d3d91763ebf06254d2", [:mix], [{:backoff, "~> 1.1", [hex: :backoff, repo: "hexpm", optional: false]}, {:elixir_uuid, "~> 1.2", [hex: :elixir_uuid, repo: "hexpm", optional: false]}, {:jason, "~> 1.2", [hex: :jason, repo: "hexpm", optional: true]}, {:phoenix_pubsub, "~> 2.0", [hex: :phoenix_pubsub, repo: "hexpm", optional: true]}], "hexpm", "64e51d04773d0b74568ea1d0886c57e350139438096992ad3456d9d80363d0b5"},
+  "commanded": {:git, "https://github.com/commanded/commanded.git", "32eb731828001e3af5e3ebf3d7809aad9770e344", [ref: "32eb731828001e3af5e3ebf3d7809aad9770e344"]},
   "earmark_parser": {:hex, :earmark_parser, "1.4.10", "6603d7a603b9c18d3d20db69921527f82ef09990885ed7525003c7fe7dc86c56", [:mix], [], "hexpm", "8e2d5370b732385db2c9b22215c3f59c84ac7dda7ed7e544d7c459496ae519c0"},
   "elixir_uuid": {:hex, :elixir_uuid, "1.2.1", "dce506597acb7e6b0daeaff52ff6a9043f5919a4c3315abb4143f0b00378c097", [:mix], [], "hexpm", "f7eba2ea6c3555cea09706492716b0d87397b88946e6380898c2889d68585752"},
   "ex_doc": {:hex, :ex_doc, "0.23.0", "a069bc9b0bf8efe323ecde8c0d62afc13d308b1fa3d228b65bca5cf8703a529d", [:mix], [{:earmark_parser, "~> 1.4.0", [hex: :earmark_parser, repo: "hexpm", optional: false]}, {:makeup_elixir, "~> 0.14", [hex: :makeup_elixir, repo: "hexpm", optional: false]}], "hexpm", "f5e2c4702468b2fd11b10d39416ddadd2fcdd173ba2a0285ebd92c39827a5a16"},
@@ -10,4 +10,5 @@
   "opentelemetry": {:hex, :opentelemetry, "0.4.1", "519f0e2daa89d1c4a0fb37310db9828ee89181e6cff349f6b1fdbda2fc4441e5", [:rebar3], [{:opentelemetry_api, "~> 0.4.0", [hex: :opentelemetry_api, repo: "hexpm", optional: false]}], "hexpm", "afba124ebe368fd530db30347ec3bf41f489a3d9b245bfd8397d5753b83e3aae"},
   "opentelemetry_api": {:hex, :opentelemetry_api, "0.4.1", "afce47063e099407daa105bf25e2aae75822f3c25b61a213f9328ff40ae6c448", [:mix, :rebar3], [], "hexpm", "7b057ca9bd5f2220d02fe2337630979df27c8d0fefc6eba371fb3cb202eb618e"},
   "telemetry": {:hex, :telemetry, "0.4.2", "2808c992455e08d6177322f14d3bdb6b625fbcfd233a73505870d8738a2f4599", [:rebar3], [], "hexpm", "2d1419bd9dda6a206d7b5852179511722e2b18812310d304620c7bd92a13fcef"},
+  "telemetry_registry": {:hex, :telemetry_registry, "0.2.0", "201820aadd05d4162287583adbffe3b1b046183750d66f650894b55e6d363f95", [:mix, :rebar3], [{:telemetry, "~> 0.4", [hex: :telemetry, repo: "hexpm", optional: false]}], "hexpm", "1311bcc021e2a2ef71941327bab3d410c6652245231e59a19210b606ecfb76f1"},
 }

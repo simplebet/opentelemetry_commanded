@@ -32,13 +32,15 @@ defmodule OpentelemetryCommanded.Aggregate do
     )
   end
 
-  def handle_start(_event, _, %{aggregate: aggregate, execution_context: context}, _) do
+  def handle_start(_event, _, meta, _) do
+    context = meta.execution_context
+
     attributes = [
       "command.type": struct_name(context.command),
-      "aggregate.module": aggregate.aggregate_module,
-      "aggregate.uuid": aggregate.aggregate_uuid,
-      "aggregate.version": aggregate.aggregate_version,
-      application: aggregate.application,
+      "command.handler": context.handler,
+      "aggregate.uuid": meta.aggregate_uuid,
+      "aggregate.version": meta.aggregate_version,
+      application: meta.application,
       "causation.id": context.causation_id,
       "correlation.id": context.correlation_id,
       "aggregate.function": context.function,
@@ -52,8 +54,9 @@ defmodule OpentelemetryCommanded.Aggregate do
     })
   end
 
-  def handle_stop(_event, %{num_events: num_events}, _meta, _) do
-    Span.set_attribute(:"event.count", num_events)
+  def handle_stop(_event, _measurements, meta, _) do
+    events = Map.get(meta, :events, [])
+    Span.set_attribute(:"event.count", Enum.count(events))
     Tracer.end_span()
   end
 

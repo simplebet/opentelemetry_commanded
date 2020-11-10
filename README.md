@@ -29,7 +29,7 @@ Once installed, execute the following function in your application behaviour bef
 OpentelemetryCommanded.setup()
 ```
 
-Then add the `OpentelemetryCommanded` to your `Commanded` routers
+Then add the `OpentelemetryCommanded.Middleware` to your `Commanded` routers
 
 ``` elixir
 middleware OpentelemetryCommanded.Middleware

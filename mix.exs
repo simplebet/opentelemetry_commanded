@@ -30,7 +30,7 @@ defmodule OpentelemetryCommanded.MixProject do
   defp deps do
     [
       {:commanded,
-       github: "commanded/commanded", ref: "32eb731828001e3af5e3ebf3d7809aad9770e344"},
+       github: "davydog187/commanded", ref: "bef1de1531b63f39aff6f8042678a03e8a82178e"},
       {:telemetry, "~> 0.4.0"},
       {:opentelemetry_api, "~> 0.4.1"},
       {:opentelemetry, "~> 0.4.1"},

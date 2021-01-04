@@ -6,8 +6,10 @@ Telemetry handler that creates OpenTelemetry spans from [Commanded](https://gith
 
 OpentelemetryCommanded currently creates spans for:
 
+* Application Dispatch
 * Aggregate Execute
 * Event.Handler Handle
+* ProcessManager Handle
 
 ## Installation
 

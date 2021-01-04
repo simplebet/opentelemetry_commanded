@@ -4,7 +4,9 @@ defmodule OpentelemetryCommanded do
   def setup do
     _ = OpenTelemetry.register_application_tracer(:commanded)
 
+    OpentelemetryCommanded.Application.setup()
     OpentelemetryCommanded.Aggregate.setup()
     OpentelemetryCommanded.EventHandler.setup()
+    OpentelemetryCommanded.ProcessManager.setup()
   end
 end

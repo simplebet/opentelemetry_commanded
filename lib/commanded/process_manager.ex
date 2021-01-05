@@ -35,8 +35,6 @@ defmodule OpentelemetryCommanded.ProcessManager do
   def handle_start(_event, _, meta, _) do
     event = meta.recorded_event
 
-    IO.inspect(meta)
-
     attributes = [
       application: meta.application,
       "process_manager.uuid": meta.process_uuid,

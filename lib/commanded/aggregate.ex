@@ -61,7 +61,7 @@ defmodule OpentelemetryCommanded.Aggregate do
   end
 
   def handle_exception(_event, _measurements, meta, _) do
-    Span.set_attributes(error: true, "error.exception": inspect(meta.error))
+    Span.set_attributes(error: true, "error.exception": inspect(meta[:error]))
     Tracer.end_span()
   end
 end

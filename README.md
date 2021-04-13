@@ -10,6 +10,7 @@ OpentelemetryCommanded currently creates spans for:
 * Aggregate Execute
 * Event.Handler Handle
 * ProcessManager Handle
+* EventStore `append_to_stream` and `stream_forward`
 
 ## Installation
 

@@ -7,6 +7,7 @@ defmodule OpentelemetryCommanded do
     OpentelemetryCommanded.Application.setup()
     OpentelemetryCommanded.Aggregate.setup()
     OpentelemetryCommanded.EventHandler.setup()
+    OpentelemetryCommanded.EventStore.setup()
     OpentelemetryCommanded.ProcessManager.setup()
   end
 end

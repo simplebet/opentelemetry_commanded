@@ -17,4 +17,5 @@ defmodule OpentelemetryCommanded.Util do
   def struct_name(%name{}) do
     name
   end
+
 end

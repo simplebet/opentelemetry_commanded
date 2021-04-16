@@ -5,6 +5,7 @@ defmodule OpentelemetryCommanded.Util do
   def encode_ctx(ctx), do: Tuple.to_list(ctx)
 
   def decode_ctx("undefined"), do: :undefined
+  def decode_ctx(:undefined), do: :undefined
 
   def decode_ctx(ctx) do
     Enum.map(ctx, fn
@@ -17,5 +18,4 @@ defmodule OpentelemetryCommanded.Util do
   def struct_name(%name{}) do
     name
   end
-
 end

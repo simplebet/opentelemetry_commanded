@@ -3,7 +3,6 @@ defmodule OpentelemetryCommanded.EventStore do
 
   require OpenTelemetry.Tracer
 
-
   alias OpenTelemetry.Tracer
 
   # :stream_forward

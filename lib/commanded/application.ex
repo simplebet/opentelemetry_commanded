@@ -40,7 +40,6 @@ defmodule OpentelemetryCommanded.Application do
 
     Tracer.start_span("commanded:application:dispatch", %{
       kind: :CONSUMER,
-      # parent: decode_ctx(context.metadata.trace_ctx),
       attributes: attributes
     })
   end

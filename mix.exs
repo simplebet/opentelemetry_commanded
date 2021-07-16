@@ -32,8 +32,7 @@ defmodule OpentelemetryCommanded.MixProject do
       {:commanded,
        github: "davydog187/commanded", ref: "115eda528b19a213a53ad6501b96acb0f61ee2a4"},
       {:telemetry, "~> 0.4.0"},
-      {:opentelemetry_api, "~> 0.4.1"},
-      {:opentelemetry, "~> 0.4.1"},
+      {:opentelemetry, "~> 1.0-rc"},
       {:ex_doc, "~> 0.23.0", only: [:dev], runtime: false}
     ]
   end

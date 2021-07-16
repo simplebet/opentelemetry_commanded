@@ -1,11 +1,10 @@
 defmodule OpentelemetryCommanded.EventHandler do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
-  alias OpenTelemetry.Span
+
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -64,7 +63,7 @@ defmodule OpentelemetryCommanded.EventHandler do
   end
 
   def handle_exception(_event, _measurements, _meta, _) do
-    Span.set_attribute(:error, true)
+    Tracer.set_attribute(:error, true)
     Tracer.end_span()
   end
 end

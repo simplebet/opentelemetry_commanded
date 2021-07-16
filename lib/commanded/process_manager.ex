@@ -1,12 +1,10 @@
 defmodule OpentelemetryCommanded.ProcessManager do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Span
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -58,12 +56,12 @@ defmodule OpentelemetryCommanded.ProcessManager do
 
   def handle_stop(_event, _measurements, meta, _) do
     commands = Map.get(meta, :commands, [])
-    Span.set_attribute(:"command.count", Enum.count(commands))
+    Tracer.set_attribute(:"command.count", Enum.count(commands))
     Tracer.end_span()
   end
 
   def handle_exception(_event, _measurements, meta, _) do
-    Span.set_attributes(error: true, "error.exception": inspect(meta[:error]))
+    Tracer.set_attributes(error: true, "error.exception": inspect(meta[:error]))
     Tracer.end_span()
   end
 end

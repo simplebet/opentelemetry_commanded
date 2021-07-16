@@ -1,12 +1,10 @@
 defmodule OpentelemetryCommanded.Application do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Span
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -46,7 +44,7 @@ defmodule OpentelemetryCommanded.Application do
 
   def handle_stop(_event, _measurements, meta, _) do
     if error = meta[:error] do
-      Span.set_attribute(:error, error)
+      Tracer.set_attribute(:error, error)
     end
 
     Tracer.end_span()

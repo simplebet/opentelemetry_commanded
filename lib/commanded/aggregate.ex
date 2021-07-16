@@ -1,12 +1,10 @@
 defmodule OpentelemetryCommanded.Aggregate do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Span
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -56,12 +54,12 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   def handle_stop(_event, _measurements, meta, _) do
     events = Map.get(meta, :events, [])
-    Span.set_attribute(:"event.count", Enum.count(events))
+    Tracer.set_attribute(:"event.count", Enum.count(events))
     Tracer.end_span()
   end
 
   def handle_exception(_event, _measurements, meta, _) do
-    Span.set_attributes(error: true, "error.exception": inspect(meta[:error]))
+    Tracer.set_attributes(error: true, "error.exception": inspect(meta[:error]))
     Tracer.end_span()
   end
 end

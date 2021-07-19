@@ -45,9 +45,10 @@ defmodule OpentelemetryCommanded.Aggregate do
       "aggregate.lifespan": context.lifespan
     ]
 
+    :otel_propagator.text_map_extract(context.metadata.trace_ctx)
+
     Tracer.start_span("commanded:aggregate:execute", %{
       kind: :CONSUMER,
-      parent: decode_ctx(context.metadata.trace_ctx),
       attributes: attributes
     })
   end

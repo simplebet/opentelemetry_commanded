@@ -3,8 +3,6 @@ defmodule OpentelemetryCommanded.EventHandler do
 
   require OpenTelemetry.Tracer
 
-  import OpentelemetryCommanded.Util
-
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -32,7 +30,6 @@ defmodule OpentelemetryCommanded.EventHandler do
 
   def handle_start(_event, _measurements, meta, _) do
     event = meta.recorded_event
-    ctx = decode_ctx(event.metadata["trace_ctx"])
 
     attributes = [
       "causation.id": event.causation_id,
@@ -51,9 +48,10 @@ defmodule OpentelemetryCommanded.EventHandler do
       # "event.last_seen": meta.last_seen_event
     ]
 
+    :otel_propagator.text_map_extract(event.metadata["trace_ctx"])
+
     Tracer.start_span("commanded:event:handle", %{
       kind: :CONSUMER,
-      parent: ctx,
       attributes: attributes
     })
   end

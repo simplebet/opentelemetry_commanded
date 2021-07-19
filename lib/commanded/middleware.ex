@@ -16,7 +16,6 @@ defmodule OpentelemetryCommanded.Middleware do
   require OpenTelemetry.Tracer
 
   import Commanded.Middleware.Pipeline
-  import OpentelemetryCommanded.Util
 
   alias Commanded.Middleware.Pipeline
   alias OpenTelemetry.Tracer
@@ -24,7 +23,7 @@ defmodule OpentelemetryCommanded.Middleware do
   def before_dispatch(%Pipeline{} = pipeline) do
     trace_ctx = Tracer.current_span_ctx()
 
-    assign_metadata(pipeline, :trace_ctx, encode_ctx(trace_ctx))
+    assign_metadata(pipeline, :trace_ctx, trace_ctx)
   end
 
   def after_dispatch(pipeline) do

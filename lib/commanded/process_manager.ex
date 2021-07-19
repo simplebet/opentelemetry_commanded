@@ -3,8 +3,6 @@ defmodule OpentelemetryCommanded.ProcessManager do
 
   require OpenTelemetry.Tracer
 
-  import OpentelemetryCommanded.Util
-
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -47,9 +45,10 @@ defmodule OpentelemetryCommanded.ProcessManager do
       "stream.version": event.stream_version
     ]
 
+    :otel_propagator.text_map_extract(event.metadata["trace_ctx"])
+
     Tracer.start_span("commanded:process_manager:handle", %{
       kind: :CONSUMER,
-      parent: decode_ctx(event.metadata["trace_ctx"]),
       attributes: attributes
     })
   end

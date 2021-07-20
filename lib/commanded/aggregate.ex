@@ -32,6 +32,8 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
+    trace_headers = decode_headers(context.metadata["trace_ctx"])
+    :otel_propagator.text_map_extract(trace_headers)
 
     attributes = [
       "command.type": struct_name(context.command),
@@ -44,8 +46,6 @@ defmodule OpentelemetryCommanded.Aggregate do
       "aggregate.function": context.function,
       "aggregate.lifespan": context.lifespan
     ]
-
-    :otel_propagator.text_map_extract(context.metadata.trace_ctx)
 
     Tracer.start_span("commanded:aggregate:execute", %{
       kind: :CONSUMER,

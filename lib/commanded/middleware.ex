@@ -16,14 +16,14 @@ defmodule OpentelemetryCommanded.Middleware do
   require OpenTelemetry.Tracer
 
   import Commanded.Middleware.Pipeline
+  import OpentelemetryCommanded.Util
 
   alias Commanded.Middleware.Pipeline
-  alias OpenTelemetry.Tracer
 
   def before_dispatch(%Pipeline{} = pipeline) do
-    trace_ctx = Tracer.current_span_ctx()
+    trace_headers = :otel_propagator.text_map_inject([])
 
-    assign_metadata(pipeline, :trace_ctx, trace_ctx)
+    assign_metadata(pipeline, "trace_ctx", encode_headers(trace_headers))
   end
 
   def after_dispatch(pipeline) do

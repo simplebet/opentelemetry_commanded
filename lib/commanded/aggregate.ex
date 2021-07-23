@@ -1,13 +1,11 @@
 defmodule OpentelemetryCommanded.Aggregate do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Span
-  alias OpenTelemetry.Tracer
+  alias OpenTelemetry.{Tracer, Span}
 
   def setup do
     :telemetry.attach(
@@ -34,6 +32,8 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
+    trace_headers = decode_headers(context.metadata["trace_ctx"])
+    :otel_propagator.text_map_extract(trace_headers)
 
     attributes = [
       "command.type": struct_name(context.command),
@@ -48,20 +48,24 @@ defmodule OpentelemetryCommanded.Aggregate do
     ]
 
     Tracer.start_span("commanded:aggregate:execute", %{
-      kind: :CONSUMER,
-      parent: decode_ctx(context.metadata.trace_ctx),
+      kind: :consumer,
       attributes: attributes
     })
   end
 
   def handle_stop(_event, _measurements, meta, _) do
     events = Map.get(meta, :events, [])
-    Span.set_attribute(:"event.count", Enum.count(events))
+    Tracer.set_attribute(:"event.count", Enum.count(events))
     Tracer.end_span()
   end
 
-  def handle_exception(_event, _measurements, meta, _) do
-    Span.set_attributes(error: true, "error.exception": inspect(meta[:error]))
+  def handle_exception(_event, _, %{kind: kind, reason: reason, stacktrace: stacktrace}, _) do
+    ctx = Tracer.current_span_ctx()
+
+    exception = Exception.normalize(kind, reason, stacktrace)
+    Span.record_exception(ctx, exception, stacktrace)
+    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+
     Tracer.end_span()
   end
 end

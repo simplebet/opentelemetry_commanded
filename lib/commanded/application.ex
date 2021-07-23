@@ -1,12 +1,10 @@
 defmodule OpentelemetryCommanded.Application do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Span
   alias OpenTelemetry.Tracer
 
   def setup do
@@ -39,14 +37,15 @@ defmodule OpentelemetryCommanded.Application do
     ]
 
     Tracer.start_span("commanded:application:dispatch", %{
-      kind: :CONSUMER,
+      kind: :consumer,
       attributes: attributes
     })
   end
 
   def handle_stop(_event, _measurements, meta, _) do
     if error = meta[:error] do
-      Span.set_attribute(:error, error)
+      OpenTelemetry.status(:error, inspect(error))
+      |> Tracer.set_status()
     end
 
     Tracer.end_span()

@@ -1,12 +1,11 @@
 defmodule OpentelemetryCommanded.EventHandler do
   @moduledoc false
 
-  require OpenTelemetry.Span
   require OpenTelemetry.Tracer
 
   import OpentelemetryCommanded.Util
-  alias OpenTelemetry.Span
-  alias OpenTelemetry.Tracer
+
+  alias OpenTelemetry.{Tracer, Span}
 
   def setup do
     :telemetry.attach(
@@ -33,7 +32,8 @@ defmodule OpentelemetryCommanded.EventHandler do
 
   def handle_start(_event, _measurements, meta, _) do
     event = meta.recorded_event
-    ctx = decode_ctx(event.metadata["trace_ctx"])
+    trace_headers = decode_headers(event.metadata["trace_ctx"])
+    :otel_propagator.text_map_extract(trace_headers)
 
     attributes = [
       "causation.id": event.causation_id,
@@ -53,8 +53,7 @@ defmodule OpentelemetryCommanded.EventHandler do
     ]
 
     Tracer.start_span("commanded:event:handle", %{
-      kind: :CONSUMER,
-      parent: ctx,
+      kind: :consumer,
       attributes: attributes
     })
   end
@@ -63,8 +62,13 @@ defmodule OpentelemetryCommanded.EventHandler do
     Tracer.end_span()
   end
 
-  def handle_exception(_event, _measurements, _meta, _) do
-    Span.set_attribute(:error, true)
+  def handle_exception(_event, _, %{kind: kind, reason: reason, stacktrace: stacktrace}, _) do
+    ctx = Tracer.current_span_ctx()
+
+    exception = Exception.normalize(kind, reason, stacktrace)
+    Span.record_exception(ctx, exception, stacktrace)
+    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+
     Tracer.end_span()
   end
 end

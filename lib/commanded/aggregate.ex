@@ -5,7 +5,7 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Tracer
+  alias OpenTelemetry.{Tracer, Span}
 
   def setup do
     :telemetry.attach(
@@ -59,8 +59,13 @@ defmodule OpentelemetryCommanded.Aggregate do
     Tracer.end_span()
   end
 
-  def handle_exception(_event, _measurements, meta, _) do
-    Tracer.set_attributes(error: true, "error.exception": inspect(meta[:error]))
+  def handle_exception(_event, _, %{kind: kind, reason: reason, stacktrace: stacktrace}, _) do
+    ctx = Tracer.current_span_ctx()
+
+    exception = Exception.normalize(kind, reason, stacktrace)
+    Span.record_exception(ctx, exception, stacktrace)
+    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+
     Tracer.end_span()
   end
 end

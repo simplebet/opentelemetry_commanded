@@ -3,7 +3,7 @@ defmodule OpentelemetryCommanded.EventStore do
 
   require OpenTelemetry.Tracer
 
-  alias OpenTelemetry.Tracer
+  alias OpenTelemetry.{Tracer, Span}
 
   # :stream_forward
   # :append_to_stream
@@ -34,17 +34,19 @@ defmodule OpentelemetryCommanded.EventStore do
     end_time = :opentelemetry.timestamp()
     start_time = end_time - measurements.duration
     attributes = meta |> Map.take([:application, :stream_uuid]) |> Enum.to_list()
-
-    attributes =
-      if type == :exception do
-        attributes |> Keyword.put(:error, true)
-      else
-        attributes
-      end
-
     span_name = :"commanded:event_store:#{action}"
 
     Tracer.start_span(span_name, %{start_time: start_time, attributes: attributes})
+
+    if type == :exception do
+      ctx = Tracer.current_span_ctx()
+      reason = meta[:reason]
+      stacktrace = meta[:stacktrace]
+
+      exception = Exception.normalize(meta[:kind], reason, stacktrace)
+      Span.record_exception(ctx, exception, stacktrace)
+      Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+    end
 
     Tracer.end_span()
   end

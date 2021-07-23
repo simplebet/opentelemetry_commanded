@@ -44,7 +44,8 @@ defmodule OpentelemetryCommanded.Application do
 
   def handle_stop(_event, _measurements, meta, _) do
     if error = meta[:error] do
-      Tracer.set_attribute(:error, error)
+      OpenTelemetry.status(:error, inspect(error))
+      |> Tracer.set_status()
     end
 
     Tracer.end_span()

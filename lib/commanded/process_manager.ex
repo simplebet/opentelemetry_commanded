@@ -50,7 +50,7 @@ defmodule OpentelemetryCommanded.ProcessManager do
     ]
 
     Tracer.start_span("commanded:process_manager:handle", %{
-      kind: :CONSUMER,
+      kind: :consumer,
       attributes: attributes
     })
   end

@@ -37,7 +37,7 @@ defmodule OpentelemetryCommanded.Application do
     ]
 
     Tracer.start_span("commanded:application:dispatch", %{
-      kind: :CONSUMER,
+      kind: :consumer,
       attributes: attributes
     })
   end

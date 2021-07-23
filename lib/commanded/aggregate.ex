@@ -48,7 +48,7 @@ defmodule OpentelemetryCommanded.Aggregate do
     ]
 
     Tracer.start_span("commanded:aggregate:execute", %{
-      kind: :CONSUMER,
+      kind: :consumer,
       attributes: attributes
     })
   end

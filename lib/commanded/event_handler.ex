@@ -53,7 +53,7 @@ defmodule OpentelemetryCommanded.EventHandler do
     ]
 
     Tracer.start_span("commanded:event:handle", %{
-      kind: :CONSUMER,
+      kind: :consumer,
       attributes: attributes
     })
   end

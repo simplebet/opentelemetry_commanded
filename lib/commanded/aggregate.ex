@@ -33,7 +33,7 @@ defmodule OpentelemetryCommanded.Aggregate do
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
     trace_headers = decode_headers(context.metadata["trace_ctx"])
-    :otel_propagator.text_map_extract(trace_headers)
+    :otel_propagator_text_map.extract(trace_headers)
 
     attributes = [
       "command.type": struct_name(context.command),

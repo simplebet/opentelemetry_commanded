@@ -33,7 +33,7 @@ defmodule OpentelemetryCommanded.ProcessManager do
   def handle_start(_event, _, meta, _) do
     event = meta.recorded_event
     trace_headers = decode_headers(event.metadata["trace_ctx"])
-    :otel_propagator.text_map_extract(trace_headers)
+    :otel_propagator_text_map.extract(trace_headers)
 
     attributes = [
       application: meta.application,

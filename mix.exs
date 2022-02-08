@@ -4,7 +4,7 @@ defmodule OpentelemetryCommanded.MixProject do
   def project do
     [
       app: :opentelemetry_commanded,
-      version: "0.1.0",
+      version: "0.2.0",
       elixir: "~> 1.10",
       start_permanent: Mix.env() == :prod,
       package: package(),
@@ -29,10 +29,9 @@ defmodule OpentelemetryCommanded.MixProject do
 
   defp deps do
     [
-      {:commanded,
-       github: "davydog187/commanded", ref: "115eda528b19a213a53ad6501b96acb0f61ee2a4"},
-      {:telemetry, "~> 0.4.0"},
-      {:opentelemetry, "~> 1.0-rc"},
+      {:commanded, "~> 1.3.1"},
+      {:telemetry, "~> 1.0"},
+      {:opentelemetry, "~> 1.0"},
       {:ex_doc, "~> 0.23.0", only: [:dev], runtime: false}
     ]
   end

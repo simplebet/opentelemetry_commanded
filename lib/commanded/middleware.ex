@@ -21,7 +21,7 @@ defmodule OpentelemetryCommanded.Middleware do
   alias Commanded.Middleware.Pipeline
 
   def before_dispatch(%Pipeline{} = pipeline) do
-    trace_headers = :otel_propagator_text_map.inject(%{})
+    trace_headers = :otel_propagator_text_map.inject([])
 
     assign_metadata(pipeline, "trace_ctx", encode_headers(trace_headers))
   end

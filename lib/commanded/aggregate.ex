@@ -5,9 +5,11 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.{Tracer, Span}
+  alias OpenTelemetry.Span
 
-  def setup do
+  @tracer_id __MODULE__
+
+  def setup() do
     :telemetry.attach(
       {__MODULE__, :start},
       [:commanded, :aggregate, :execute, :start],
@@ -47,25 +49,43 @@ defmodule OpentelemetryCommanded.Aggregate do
       "aggregate.lifespan": context.lifespan
     ]
 
-    Tracer.start_span("commanded:aggregate:execute", %{
-      kind: :consumer,
-      attributes: attributes
-    })
+    OpentelemetryTelemetry.start_telemetry_span(
+      @tracer_id,
+      "commanded.aggregate.execute",
+      meta,
+      %{
+        kind: :consumer,
+        attributes: attributes
+      }
+    )
   end
 
   def handle_stop(_event, _measurements, meta, _) do
+    # ensure the correct span is current and update the status
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
+
     events = Map.get(meta, :events, [])
-    Tracer.set_attribute(:"event.count", Enum.count(events))
-    Tracer.end_span()
+    Span.set_attribute(ctx, :"event.count", Enum.count(events))
+
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 
-  def handle_exception(_event, _, %{kind: kind, reason: reason, stacktrace: stacktrace}, _) do
-    ctx = Tracer.current_span_ctx()
+  def handle_exception(
+        _event,
+        _measurements,
+        %{kind: kind, reason: reason, stacktrace: stacktrace} = meta,
+        _config
+      ) do
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
+    # try to normalize all errors to Elixir exceptions
     exception = Exception.normalize(kind, reason, stacktrace)
+
+    # record exception and mark the span as errored
     Span.record_exception(ctx, exception, stacktrace)
     Span.set_status(ctx, OpenTelemetry.status(:error, ""))
 
-    Tracer.end_span()
+    # do not close the span as endpoint stop will still be called with
+    # more info, including the status code, which is nil at this stage
   end
 end

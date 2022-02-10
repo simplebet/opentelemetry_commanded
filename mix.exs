@@ -30,6 +30,7 @@ defmodule OpentelemetryCommanded.MixProject do
   defp deps do
     [
       {:commanded, "~> 1.3.1"},
+      {:opentelemetry_telemetry, "~> 1.0.0-beta.7"},
       {:telemetry, "~> 1.0"},
       {:opentelemetry, "~> 1.0"},
       {:ex_doc, "~> 0.23.0", only: [:dev], runtime: false}

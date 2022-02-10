@@ -7,6 +7,8 @@ defmodule OpentelemetryCommanded.ProcessManager do
 
   alias OpenTelemetry.{Tracer, Span}
 
+  @tracer_id __MODULE__
+
   def setup do
     :telemetry.attach(
       {__MODULE__, :start},
@@ -49,25 +51,46 @@ defmodule OpentelemetryCommanded.ProcessManager do
       "stream.version": event.stream_version
     ]
 
-    Tracer.start_span("commanded:process_manager:handle", %{
-      kind: :consumer,
-      attributes: attributes
-    })
+    IO.puts "process manager start"
+
+    OpentelemetryTelemetry.start_telemetry_span(
+      @tracer_id,
+      "commanded.process_manager.handle",
+      meta,
+      %{
+        kind: :consumer,
+        attributes: attributes
+      }
+    )
   end
 
   def handle_stop(_event, _measurements, meta, _) do
+    IO.puts "process manager stop"
+    # ensure the correct span is current and update the status
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
+
     commands = Map.get(meta, :commands, [])
-    Tracer.set_attribute(:"command.count", Enum.count(commands))
-    Tracer.end_span()
+    Span.set_attribute(ctx, :"command.count", Enum.count(commands))
+
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 
-  def handle_exception(_event, _, %{kind: kind, reason: reason, stacktrace: stacktrace}, _) do
-    ctx = Tracer.current_span_ctx()
+  def handle_exception(
+        _event,
+        _measurements,
+        %{kind: kind, reason: reason, stacktrace: stacktrace} = meta,
+        _config
+      ) do
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
+    # try to normalize all errors to Elixir exceptions
     exception = Exception.normalize(kind, reason, stacktrace)
+
+    # record exception and mark the span as errored
     Span.record_exception(ctx, exception, stacktrace)
     Span.set_status(ctx, OpenTelemetry.status(:error, ""))
 
-    Tracer.end_span()
+    # do not close the span as endpoint stop will still be called with
+    # more info, including the status code, which is nil at this stage
   end
 end

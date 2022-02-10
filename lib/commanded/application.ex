@@ -5,7 +5,9 @@ defmodule OpentelemetryCommanded.Application do
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.Tracer
+  alias OpenTelemetry.Span
+
+  @tracer_id __MODULE__
 
   def setup do
     :telemetry.attach(
@@ -21,6 +23,8 @@ defmodule OpentelemetryCommanded.Application do
       &__MODULE__.handle_stop/4,
       []
     )
+
+    # TODO attach for exceptions
   end
 
   def handle_start(_event, _, meta, _) do
@@ -36,18 +40,25 @@ defmodule OpentelemetryCommanded.Application do
       "aggregate.lifespan": context.lifespan
     ]
 
-    Tracer.start_span("commanded:application:dispatch", %{
-      kind: :consumer,
-      attributes: attributes
-    })
+    OpentelemetryTelemetry.start_telemetry_span(
+      @tracer_id,
+      "commanded.aggregate.dispatch",
+      meta,
+      %{
+        kind: :consumer,
+        attributes: attributes
+      }
+    )
   end
 
   def handle_stop(_event, _measurements, meta, _) do
+    # ensure the correct span is current and update the status
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
+
     if error = meta[:error] do
-      OpenTelemetry.status(:error, inspect(error))
-      |> Tracer.set_status()
+      Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))
     end
 
-    Tracer.end_span()
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 end

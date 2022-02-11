@@ -5,9 +5,6 @@ defmodule OpentelemetryCommanded.EventStore do
 
   alias OpenTelemetry.{Tracer, Span}
 
-  # :stream_forward
-  # :append_to_stream
-
   def setup do
     :telemetry.attach_many(
       {__MODULE__, :stop},

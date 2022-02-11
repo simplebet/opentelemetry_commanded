@@ -5,7 +5,7 @@ defmodule OpentelemetryCommanded.ProcessManager do
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.{Tracer, Span}
+  alias OpenTelemetry.Span
 
   @tracer_id __MODULE__
 
@@ -51,8 +51,6 @@ defmodule OpentelemetryCommanded.ProcessManager do
       "stream.version": event.stream_version
     ]
 
-    IO.puts "process manager start"
-
     OpentelemetryTelemetry.start_telemetry_span(
       @tracer_id,
       "commanded.process_manager.handle",
@@ -65,8 +63,7 @@ defmodule OpentelemetryCommanded.ProcessManager do
   end
 
   def handle_stop(_event, _measurements, meta, _) do
-    IO.puts "process manager stop"
-    # ensure the correct span is current and update the status
+    # ensure the correct span is current
     ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
     commands = Map.get(meta, :commands, [])

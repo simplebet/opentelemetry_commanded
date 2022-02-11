@@ -61,7 +61,7 @@ defmodule OpentelemetryCommanded.Aggregate do
   end
 
   def handle_stop(_event, _measurements, meta, _) do
-    # ensure the correct span is current and update the status
+    # ensure the correct span is current
     ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
     events = Map.get(meta, :events, [])

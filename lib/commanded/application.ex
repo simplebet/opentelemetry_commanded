@@ -23,8 +23,6 @@ defmodule OpentelemetryCommanded.Application do
       &__MODULE__.handle_stop/4,
       []
     )
-
-    # TODO attach for exceptions
   end
 
   def handle_start(_event, _, meta, _) do

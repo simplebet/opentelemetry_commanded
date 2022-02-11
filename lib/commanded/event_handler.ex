@@ -5,7 +5,7 @@ defmodule OpentelemetryCommanded.EventHandler do
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.{Tracer, Span}
+  alias OpenTelemetry.Span
 
   @tracer_id __MODULE__
 

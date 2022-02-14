@@ -31,7 +31,7 @@ defmodule OpentelemetryCommanded.EventStore do
     end_time = :opentelemetry.timestamp()
     start_time = end_time - measurements.duration
     attributes = meta |> Map.take([:application, :stream_uuid]) |> Enum.to_list()
-    span_name = :"commanded:event_store:#{action}"
+    span_name = :"commanded.event_store.#{action}"
 
     Tracer.start_span(span_name, %{start_time: start_time, attributes: attributes})
 

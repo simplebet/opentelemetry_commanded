@@ -40,7 +40,7 @@ defmodule OpentelemetryCommanded.Application do
 
     OpentelemetryTelemetry.start_telemetry_span(
       @tracer_id,
-      "commanded.aggregate.dispatch",
+      "commanded.application.dispatch",
       meta,
       %{
         kind: :consumer,

@@ -29,13 +29,16 @@ defmodule OpentelemetryCommanded.Application do
     context = meta.execution_context
 
     attributes = [
-      "command.type": struct_name(context.command),
-      "command.handler": context.handler,
-      application: meta.application,
-      "causation.id": context.causation_id,
-      "correlation.id": context.correlation_id,
-      "aggregate.function": context.function,
-      "aggregate.lifespan": context.lifespan
+      "messaging.system": "commanded",
+      "messaging.protocol": "cqrs",
+      "messaging.destination_kind": "command_handler",
+      "messaging.operation": "receive",
+      "messaging.destination": context.handler,
+      "messaging.message_id": context.causation_id,
+      "messaging.conversation_id": context.correlation_id,
+      "messaging.commanded.application": meta.application,
+      "messaging.commanded.command": struct_name(context.command),
+      "messaging.commanded.function": context.function
     ]
 
     OpentelemetryTelemetry.start_telemetry_span(

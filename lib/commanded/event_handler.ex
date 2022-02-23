@@ -5,7 +5,9 @@ defmodule OpentelemetryCommanded.EventHandler do
 
   import OpentelemetryCommanded.Util
 
-  alias OpenTelemetry.{Tracer, Span}
+  alias OpenTelemetry.Span
+
+  @tracer_id __MODULE__
 
   def setup do
     :telemetry.attach(
@@ -52,23 +54,42 @@ defmodule OpentelemetryCommanded.EventHandler do
       # "event.last_seen": meta.last_seen_event
     ]
 
-    Tracer.start_span("commanded:event:handle", %{
-      kind: :consumer,
-      attributes: attributes
-    })
+    OpentelemetryTelemetry.start_telemetry_span(
+      @tracer_id,
+      "commanded.event.handle",
+      meta,
+      %{
+        kind: :consumer,
+        attributes: attributes
+      }
+    )
   end
 
-  def handle_stop(_event, _measurements, _meta, _) do
-    Tracer.end_span()
+  def handle_stop(_event, _measurements, meta, _) do
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
+
+    if error = meta[:error] do
+      Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))
+    end
+
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 
-  def handle_exception(_event, _, %{kind: kind, reason: reason, stacktrace: stacktrace}, _) do
-    ctx = Tracer.current_span_ctx()
+  def handle_exception(
+        _event,
+        _measurements,
+        %{kind: kind, reason: reason, stacktrace: stacktrace} = meta,
+        _config
+      ) do
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
+    # try to normalize all errors to Elixir exceptions
     exception = Exception.normalize(kind, reason, stacktrace)
-    Span.record_exception(ctx, exception, stacktrace)
-    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
 
-    Tracer.end_span()
+    # record exception and mark the span as errored
+    Span.record_exception(ctx, exception, stacktrace)
+    Span.set_status(ctx, OpenTelemetry.status(:error, inspect(reason)))
+
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 end

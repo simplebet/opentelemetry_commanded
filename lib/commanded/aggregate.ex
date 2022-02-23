@@ -67,6 +67,10 @@ defmodule OpentelemetryCommanded.Aggregate do
     events = Map.get(meta, :events, [])
     Span.set_attribute(ctx, :"event.count", Enum.count(events))
 
+    if error = meta[:error] do
+      Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))
+    end
+
     OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 
@@ -83,9 +87,8 @@ defmodule OpentelemetryCommanded.Aggregate do
 
     # record exception and mark the span as errored
     Span.record_exception(ctx, exception, stacktrace)
-    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+    Span.set_status(ctx, OpenTelemetry.status(:error, inspect(reason)))
 
-    # do not close the span as endpoint stop will still be called with
-    # more info, including the status code, which is nil at this stage
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 end

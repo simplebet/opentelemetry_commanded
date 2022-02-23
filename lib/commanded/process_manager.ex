@@ -87,7 +87,6 @@ defmodule OpentelemetryCommanded.ProcessManager do
     Span.record_exception(ctx, exception, stacktrace)
     Span.set_status(ctx, OpenTelemetry.status(:error, ""))
 
-    # do not close the span as endpoint stop will still be called with
-    # more info, including the status code, which is nil at this stage
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 end

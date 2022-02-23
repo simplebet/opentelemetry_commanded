@@ -66,7 +66,11 @@ defmodule OpentelemetryCommanded.EventHandler do
   end
 
   def handle_stop(_event, _measurements, meta, _) do
-    _ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
+    ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
+
+    if error = meta[:error] do
+      Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))
+    end
 
     OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
@@ -84,9 +88,8 @@ defmodule OpentelemetryCommanded.EventHandler do
 
     # record exception and mark the span as errored
     Span.record_exception(ctx, exception, stacktrace)
-    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+    Span.set_status(ctx, OpenTelemetry.status(:error, inspect(reason)))
 
-    # do not close the span as endpoint stop will still be called with
-    # more info, including the status code, which is nil at this stage
+    OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
 end

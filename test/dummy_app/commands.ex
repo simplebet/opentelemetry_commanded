@@ -20,4 +20,8 @@ defmodule OpentelemetryCommanded.DummyApp.Commands do
   defmodule DispatchError do
     defstruct [:id, :message]
   end
+
+  defmodule ProcessManagerCommand do
+    defstruct [:id]
+  end
 end

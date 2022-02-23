@@ -38,17 +38,25 @@ defmodule OpentelemetryCommanded.ProcessManager do
     :otel_propagator_text_map.extract(trace_headers)
 
     attributes = [
-      application: meta.application,
-      "process_manager.uuid": meta.process_uuid,
-      "process_manager.name": meta.process_manager_name,
-      "process_manager.module": meta.process_manager_module,
-      "event.id": event.event_id,
-      "event.number": event.event_number,
-      "event.type": event.event_type,
-      "correlation.id": event.correlation_id,
-      "causation.id": event.causation_id,
-      "stream.id": event.stream_id,
-      "stream.version": event.stream_version
+      "messaging.system": "commanded",
+      "messaging.protocol": "cqrs",
+      "messaging.destination_kind": "process_manager",
+      "messaging.operation": "receive",
+      "messaging.message_id": event.causation_id,
+      "messaging.conversation_id": event.correlation_id,
+      "messaging.destination": meta.process_manager_module,
+      "messaging.commanded.application": meta.application,
+      "messaging.commanded.event": event.event_type,
+      "messaging.commanded.event_id": event.event_id,
+      "messaging.commanded.event_number": event.event_number,
+      "messaging.commanded.process_uuid": meta.process_uuid,
+      "messaging.commanded.stream_id": event.stream_id,
+      "messaging.commanded.stream_version": event.stream_version,
+      "messaging.commanded.handler_name": meta.process_manager_name
+      # TODO add back
+      # consistency: meta.consistency,
+      #  TODO add this back into commanded
+      # "event.last_seen": meta.last_seen_event
     ]
 
     OpentelemetryTelemetry.start_telemetry_span(
@@ -67,7 +75,11 @@ defmodule OpentelemetryCommanded.ProcessManager do
     ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
     commands = Map.get(meta, :commands, [])
-    Span.set_attribute(ctx, :"command.count", Enum.count(commands))
+    Span.set_attribute(ctx, :"messaging.commanded.command_count", Enum.count(commands))
+
+    if error = meta[:error] do
+      Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))
+    end
 
     OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
@@ -85,7 +97,7 @@ defmodule OpentelemetryCommanded.ProcessManager do
 
     # record exception and mark the span as errored
     Span.record_exception(ctx, exception, stacktrace)
-    Span.set_status(ctx, OpenTelemetry.status(:error, ""))
+    Span.set_status(ctx, OpenTelemetry.status(:error, inspect(reason)))
 
     OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end

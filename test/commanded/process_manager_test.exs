@@ -1,13 +1,14 @@
-defmodule OpentelemetryCommanded.AggregateTest do
+defmodule OpentelemetryCommanded.ProcessManagerTest do
   use OpentelemetryCommanded.CommandedCase, async: false
 
   import ExUnit.CaptureLog
 
   alias OpentelemetryCommanded.DummyApp.Commands, as: C
+  alias OpentelemetryCommanded.DummyApp.Events, as: E
 
   describe "dispatch command when Telemetry attached" do
     setup _ do
-      case OpentelemetryCommanded.Aggregate.setup() do
+      case OpentelemetryCommanded.ProcessManager.setup() do
         :ok -> :ok
         {:error, :already_exists} -> :ok
       end
@@ -18,7 +19,7 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert_receive {:span,
                       span(
-                        name: "commanded.aggregate.execute",
+                        name: "commanded.process_manager.handle",
                         kind: :consumer,
                         attributes: attributes
                       )}
@@ -29,7 +30,8 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert match?(
                %{
-                 "messaging.commanded.command": OpentelemetryCommanded.DummyApp.Commands.Ok
+                 "messaging.commanded.event":
+                   "Elixir.OpentelemetryCommanded.DummyApp.Events.OkEvent"
                },
                attributes
              )
@@ -38,14 +40,16 @@ defmodule OpentelemetryCommanded.AggregateTest do
     test "Error should create span with error set", context do
       _log =
         capture_log(fn ->
-          # TODO: shouldn't be same command as for application_test
-          {:error, "some error"} =
-            app_dispatch(context, %C.Error{id: "ACC123", message: "some error"})
+          :ok =
+            app_dispatch(context, %C.DoEvent{
+              id: "ACC123",
+              event: %E.ErrorInProcessManagerEvent{id: "ACC123", message: "some error"}
+            })
         end)
 
       assert_receive {:span,
                       span(
-                        name: "commanded.aggregate.execute",
+                        name: "commanded.process_manager.handle",
                         kind: :consumer,
                         status: {:status, :error, exception_message},
                         attributes: attributes
@@ -57,7 +61,8 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert match?(
                %{
-                 "messaging.commanded.command": OpentelemetryCommanded.DummyApp.Commands.Error
+                 "messaging.commanded.event":
+                   "Elixir.OpentelemetryCommanded.DummyApp.Events.ErrorInProcessManagerEvent"
                },
                attributes
              )
@@ -68,13 +73,16 @@ defmodule OpentelemetryCommanded.AggregateTest do
     test "Exception should create span with error set", context do
       _log =
         capture_log(fn ->
-          {:error, %RuntimeError{message: "some error"}} =
-            app_dispatch(context, %C.RaiseException{id: "ACC123", message: "some error"})
+          :ok =
+            app_dispatch(context, %C.DoEvent{
+              id: "ACC123",
+              event: %E.ExceptionInProcessManagerEvent{id: "ACC123", message: "some error"}
+            })
         end)
 
       assert_receive {:span,
                       span(
-                        name: "commanded.aggregate.execute",
+                        name: "commanded.process_manager.handle",
                         kind: :consumer,
                         status: {:status, :error, exception_message},
                         attributes: attributes,
@@ -87,8 +95,8 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert match?(
                %{
-                 "messaging.commanded.command":
-                   OpentelemetryCommanded.DummyApp.Commands.RaiseException
+                 "messaging.commanded.event":
+                   "Elixir.OpentelemetryCommanded.DummyApp.Events.ExceptionInProcessManagerEvent"
                },
                attributes
              )
@@ -114,25 +122,28 @@ defmodule OpentelemetryCommanded.AggregateTest do
              )
 
       stack_trace = event_attributes["exception.stacktrace"]
-      assert stack_trace =~ "OpentelemetryCommanded.DummyApp.Handler.handle/2"
+      assert stack_trace =~ "OpentelemetryCommanded.DummyApp.ProcessManager.handle/2"
     end
   end
 
   defp has_basic_attributes!(attributes, correlation_id) do
     assert match?(
              %{
-               "messaging.commanded.aggregate_uuid": "ACC123",
-               "messaging.commanded.aggregate_version": 0,
                "messaging.commanded.application": OpentelemetryCommanded.DummyApp.App,
-               "messaging.commanded.command": _,
-               "messaging.commanded.function": :handle,
+               "messaging.commanded.event_id": _,
+               "messaging.commanded.event_number": 1,
+               "messaging.commanded.handler_name": "ProcessManager",
+               "messaging.commanded.stream_id": "ACC123",
+               "messaging.commanded.stream_version": 1,
                "messaging.conversation_id": ^correlation_id,
-               "messaging.destination": OpentelemetryCommanded.DummyApp.Handler,
-               "messaging.destination_kind": "aggregate",
+               "messaging.destination": OpentelemetryCommanded.DummyApp.ProcessManager,
+               "messaging.destination_kind": "process_manager",
                "messaging.message_id": _,
                "messaging.operation": "receive",
                "messaging.protocol": "cqrs",
-               "messaging.system": "commanded"
+               "messaging.system": "commanded",
+               "messaging.commanded.event": _,
+               "messaging.commanded.process_uuid": "ACC123"
              },
              attributes
            )

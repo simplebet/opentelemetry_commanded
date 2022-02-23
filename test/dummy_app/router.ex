@@ -14,7 +14,7 @@ defmodule OpentelemetryCommanded.DummyApp.Router do
 
   identify(Aggregate, by: :id)
 
-  dispatch([C.Ok, C.Error, C.RaiseException, C.DoEvent, C.DispatchError],
+  dispatch([C.Ok, C.Error, C.RaiseException, C.DoEvent, C.DispatchError, C.ProcessManagerCommand],
     to: Handler,
     aggregate: Aggregate
   )

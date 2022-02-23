@@ -15,4 +15,14 @@ defmodule OpentelemetryCommanded.DummyApp.Events do
     @derive Jason.Encoder
     defstruct [:id, :message]
   end
+
+  defmodule ErrorInProcessManagerEvent do
+    @derive Jason.Encoder
+    defstruct [:id, :message]
+  end
+
+  defmodule ExceptionInProcessManagerEvent do
+    @derive Jason.Encoder
+    defstruct [:id, :message]
+  end
 end

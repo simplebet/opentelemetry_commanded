@@ -28,6 +28,8 @@ defmodule OpentelemetryCommanded.Application do
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
 
+    safe_context_propagation(context.metadata["trace_ctx"])
+
     attributes = [
       "messaging.system": "commanded",
       "messaging.protocol": "cqrs",

@@ -1,10 +1,7 @@
 defmodule OpentelemetryCommanded.EventStoreTest do
   use OpentelemetryCommanded.CommandedCase, async: false
 
-  import ExUnit.CaptureLog
-
   alias OpentelemetryCommanded.DummyApp.Commands, as: C
-  alias OpentelemetryCommanded.DummyApp.Events, as: E
 
   describe "dispatch command when Telemetry attached" do
     setup _ do
@@ -21,8 +18,17 @@ defmodule OpentelemetryCommanded.EventStoreTest do
                       span(
                         name: "commanded.event_store.ack_event",
                         kind: :consumer,
+                        parent_span_id: parent_span_id,
                         attributes: attributes
                       )}
+
+      # Get parent span to ensure context has been propagated across the process
+      assert_receive {:span, span(name: parent_span_name, span_id: ^parent_span_id)}
+
+      assert parent_span_name in [
+               "opentelemetry_commanded.test",
+               "commanded.application.dispatch"
+             ]
 
       attributes = :otel_attributes.map(attributes)
 

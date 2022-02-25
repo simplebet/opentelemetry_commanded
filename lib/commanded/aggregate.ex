@@ -34,8 +34,8 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
-    trace_headers = decode_headers(context.metadata["trace_ctx"])
-    :otel_propagator_text_map.extract(trace_headers)
+
+    safe_context_propagation(context.metadata["trace_ctx"])
 
     attributes = [
       "messaging.system": "commanded",

@@ -18,7 +18,7 @@ defmodule OpentelemetryCommanded.DummyApp.ProcessManager do
     false
   end
 
-  def handle(_pm, %E.OkEvent{id: id} = event) do
+  def handle(_pm, %E.OkEvent{id: id}) do
     %C.ProcessManagerCommand{id: id}
   end
 

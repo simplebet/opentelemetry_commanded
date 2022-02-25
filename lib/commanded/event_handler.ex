@@ -33,26 +33,24 @@ defmodule OpentelemetryCommanded.EventHandler do
   end
 
   def handle_start(_event, _measurements, meta, _) do
-    event = meta.recorded_event
+    recorded_event = meta.recorded_event
 
-    # TODO: do we want to trap this with helpful message about needing Middleware?
-    trace_headers = decode_headers(event.metadata["trace_ctx"])
-    :otel_propagator_text_map.extract(trace_headers)
+    safe_context_propagation(recorded_event.metadata["trace_ctx"])
 
     attributes = [
       "messaging.system": "commanded",
       "messaging.protocol": "cqrs",
       "messaging.destination_kind": "event_handler",
       "messaging.operation": "receive",
-      "messaging.message_id": event.causation_id,
-      "messaging.conversation_id": event.correlation_id,
+      "messaging.message_id": recorded_event.causation_id,
+      "messaging.conversation_id": recorded_event.correlation_id,
       "messaging.destination": meta.handler_module,
       "messaging.commanded.application": meta.application,
-      "messaging.commanded.event": event.event_type,
-      "messaging.commanded.event_id": event.event_id,
-      "messaging.commanded.event_number": event.event_number,
-      "messaging.commanded.stream_id": event.stream_id,
-      "messaging.commanded.stream_version": event.stream_version,
+      "messaging.commanded.event": recorded_event.event_type,
+      "messaging.commanded.event_id": recorded_event.event_id,
+      "messaging.commanded.event_number": recorded_event.event_number,
+      "messaging.commanded.stream_id": recorded_event.stream_id,
+      "messaging.commanded.stream_version": recorded_event.stream_version,
       "messaging.commanded.handler_name": meta.handler_name
       # TODO add back
       # consistency: meta.consistency,

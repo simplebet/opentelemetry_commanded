@@ -33,25 +33,24 @@ defmodule OpentelemetryCommanded.ProcessManager do
   end
 
   def handle_start(_event, _, meta, _) do
-    event = meta.recorded_event
-    trace_headers = decode_headers(event.metadata["trace_ctx"])
-    :otel_propagator_text_map.extract(trace_headers)
+    recorded_event = meta.recorded_event
+    safe_context_propagation(recorded_event.metadata["trace_ctx"])
 
     attributes = [
       "messaging.system": "commanded",
       "messaging.protocol": "cqrs",
       "messaging.destination_kind": "process_manager",
       "messaging.operation": "receive",
-      "messaging.message_id": event.causation_id,
-      "messaging.conversation_id": event.correlation_id,
+      "messaging.message_id": recorded_event.causation_id,
+      "messaging.conversation_id": recorded_event.correlation_id,
       "messaging.destination": meta.process_manager_module,
       "messaging.commanded.application": meta.application,
-      "messaging.commanded.event": event.event_type,
-      "messaging.commanded.event_id": event.event_id,
-      "messaging.commanded.event_number": event.event_number,
+      "messaging.commanded.event": recorded_event.event_type,
+      "messaging.commanded.event_id": recorded_event.event_id,
+      "messaging.commanded.event_number": recorded_event.event_number,
       "messaging.commanded.process_uuid": meta.process_uuid,
-      "messaging.commanded.stream_id": event.stream_id,
-      "messaging.commanded.stream_version": event.stream_version,
+      "messaging.commanded.stream_id": recorded_event.stream_id,
+      "messaging.commanded.stream_version": recorded_event.stream_version,
       "messaging.commanded.handler_name": meta.process_manager_name
       # TODO add back
       # consistency: meta.consistency,

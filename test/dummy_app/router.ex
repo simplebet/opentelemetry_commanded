@@ -6,9 +6,7 @@ defmodule OpentelemetryCommanded.DummyApp.Router do
   alias OpentelemetryCommanded.DummyApp.Aggregate
   alias OpentelemetryCommanded.DummyApp.Commands, as: C
   alias OpentelemetryCommanded.DummyApp.Handler
-  alias Commanded.Helpers.CommandAuditMiddleware
 
-  middleware(CommandAuditMiddleware)
   middleware(OpentelemetryCommanded.Middleware)
   middleware(OpentelemetryCommanded.DummyApp.CommandValidatorMiddleware)
 

@@ -22,8 +22,13 @@ defmodule OpentelemetryCommanded.ApplicationTest do
                       span(
                         name: "commanded.application.dispatch",
                         kind: :consumer,
+                        parent_span_id: parent_span_id,
                         attributes: attributes
                       )}
+
+      # Get parent span to ensure context has been propagated across the process
+      assert_receive {:span, span(name: parent_span_name, span_id: ^parent_span_id)}
+      assert parent_span_name in ["opentelemetry_commanded.test"]
 
       attributes = :otel_attributes.map(attributes)
 

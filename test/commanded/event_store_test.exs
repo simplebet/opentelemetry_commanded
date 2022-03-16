@@ -17,7 +17,7 @@ defmodule OpentelemetryCommanded.EventStoreTest do
       assert_receive {:span,
                       span(
                         name: "commanded.event_store.ack_event",
-                        kind: :consumer,
+                        kind: :internal,
                         parent_span_id: parent_span_id,
                         attributes: attributes
                       )}
@@ -36,7 +36,7 @@ defmodule OpentelemetryCommanded.EventStoreTest do
 
       assert match?(
                %{
-                 "messaging.commanded.event":
+                 "commanded.event":
                    "Elixir.OpentelemetryCommanded.DummyApp.Events.OkEvent"
                },
                attributes
@@ -47,18 +47,14 @@ defmodule OpentelemetryCommanded.EventStoreTest do
   defp has_basic_attributes!(attributes, correlation_id) do
     assert match?(
              %{
-               "messaging.commanded.application": OpentelemetryCommanded.DummyApp.App,
-               "messaging.commanded.event_id": _,
-               "messaging.commanded.event_number": 1,
-               "messaging.commanded.stream_id": "ACC123",
-               "messaging.commanded.stream_version": 1,
-               "messaging.conversation_id": ^correlation_id,
-               "messaging.destination_kind": "event_store",
-               "messaging.message_id": _,
-               "messaging.operation": "receive",
-               "messaging.protocol": "cqrs",
-               "messaging.system": "commanded",
-               "messaging.commanded.event": _
+               "commanded.application": OpentelemetryCommanded.DummyApp.App,
+               "commanded.causation_id": _,
+               "commanded.correlation_id": ^correlation_id,
+               "commanded.event": _,
+               "commanded.event_id": _,
+               "commanded.event_number": 1,
+               "commanded.stream_id": "ACC123",
+               "commanded.stream_version": 1
              },
              attributes
            )

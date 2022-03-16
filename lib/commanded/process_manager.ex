@@ -37,21 +37,22 @@ defmodule OpentelemetryCommanded.ProcessManager do
     safe_context_propagation(recorded_event.metadata["trace_ctx"])
 
     attributes = [
-      "messaging.system": "commanded",
-      "messaging.protocol": "cqrs",
-      "messaging.destination_kind": "process_manager",
-      "messaging.operation": "receive",
-      "messaging.message_id": recorded_event.causation_id,
+      "commanded.application": meta.application,
+      "commanded.causation_id": recorded_event.causation_id,
+      "commanded.correlation_id": recorded_event.correlation_id,
+      "commanded.event": recorded_event.event_type,
+      "commanded.event_id": recorded_event.event_id,
+      "commanded.event_number": recorded_event.event_number,
+      "commanded.handler_name": meta.process_manager_name,
+      "commanded.process_uuid": meta.process_uuid,
+      "commanded.stream_id": recorded_event.stream_id,
+      "commanded.stream_version": recorded_event.stream_version,
       "messaging.conversation_id": recorded_event.correlation_id,
       "messaging.destination": meta.process_manager_module,
-      "messaging.commanded.application": meta.application,
-      "messaging.commanded.event": recorded_event.event_type,
-      "messaging.commanded.event_id": recorded_event.event_id,
-      "messaging.commanded.event_number": recorded_event.event_number,
-      "messaging.commanded.process_uuid": meta.process_uuid,
-      "messaging.commanded.stream_id": recorded_event.stream_id,
-      "messaging.commanded.stream_version": recorded_event.stream_version,
-      "messaging.commanded.handler_name": meta.process_manager_name
+      "messaging.destination_kind": "process_manager",
+      "messaging.message_id": recorded_event.causation_id,
+      "messaging.operation": "receive",
+      "messaging.system": "commanded"
       # TODO add back
       # consistency: meta.consistency,
       #  TODO add this back into commanded

@@ -35,7 +35,7 @@ defmodule OpentelemetryCommanded.ApplicationTest do
       has_basic_attributes!(attributes, context.correlation_id)
 
       assert match?(
-               %{"messaging.commanded.command": DummyApp.Commands.Ok},
+               %{"commanded.command": DummyApp.Commands.Ok},
                attributes
              )
     end
@@ -61,7 +61,7 @@ defmodule OpentelemetryCommanded.ApplicationTest do
       has_basic_attributes!(attributes, context.correlation_id)
 
       assert match?(
-               %{"messaging.commanded.command": DummyApp.Commands.Error},
+               %{"commanded.command": DummyApp.Commands.Error},
                attributes
              )
     end
@@ -107,7 +107,7 @@ defmodule OpentelemetryCommanded.ApplicationTest do
       has_basic_attributes!(attributes, context.correlation_id)
 
       assert match?(
-               %{"messaging.commanded.command": DummyApp.Commands.RaiseException},
+               %{"commanded.command": DummyApp.Commands.RaiseException},
                attributes
              )
     end
@@ -116,14 +116,13 @@ defmodule OpentelemetryCommanded.ApplicationTest do
   defp has_basic_attributes!(attributes, correlation_id) do
     assert match?(
              %{
-               "messaging.commanded.function": :handle,
-               "messaging.commanded.application": DummyApp.App,
-               "messaging.message_id": _,
+               "commanded.application": DummyApp.App,
+               "commanded.function": :handle,
+               "messaging.conversation_id": ^correlation_id,
                "messaging.destination": DummyApp.Handler,
                "messaging.destination_kind": "command_handler",
-               "messaging.conversation_id": ^correlation_id,
+               "messaging.message_id": _,
                "messaging.operation": "receive",
-               "messaging.protocol": "cqrs",
                "messaging.system": "commanded"
              },
              attributes

@@ -31,16 +31,17 @@ defmodule OpentelemetryCommanded.Application do
     safe_context_propagation(context.metadata["trace_ctx"])
 
     attributes = [
-      "messaging.system": "commanded",
-      "messaging.protocol": "cqrs",
-      "messaging.destination_kind": "command_handler",
-      "messaging.operation": "receive",
-      "messaging.destination": context.handler,
-      "messaging.message_id": context.causation_id,
+      "commanded.application": meta.application,
+      "commanded.causation_id": context.causation_id,
+      "commanded.command": struct_name(context.command),
+      "commanded.correlation_id": context.correlation_id,
+      "commanded.function": context.function,
       "messaging.conversation_id": context.correlation_id,
-      "messaging.commanded.application": meta.application,
-      "messaging.commanded.command": struct_name(context.command),
-      "messaging.commanded.function": context.function
+      "messaging.destination": context.handler,
+      "messaging.destination_kind": "command_handler",
+      "messaging.message_id": context.causation_id,
+      "messaging.operation": "receive",
+      "messaging.system": "commanded"
     ]
 
     OpentelemetryTelemetry.start_telemetry_span(

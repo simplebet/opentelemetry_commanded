@@ -56,20 +56,14 @@ defmodule OpentelemetryCommanded.EventStore do
     safe_context_propagation(event.metadata["trace_ctx"])
 
     attributes = [
-      "messaging.system": "commanded",
-      "messaging.protocol": "cqrs",
-      "messaging.destination_kind": "event_store",
-      # TODO does this need to change based on the event?  Or maybe `internal`?
-      "messaging.operation": "receive",
-      "messaging.message_id": event.causation_id,
-      "messaging.conversation_id": event.correlation_id,
-      #      "messaging.destination": meta.handler_module,
-      "messaging.commanded.application": meta.application,
-      "messaging.commanded.event": event.event_type,
-      "messaging.commanded.event_id": event.event_id,
-      "messaging.commanded.event_number": event.event_number,
-      "messaging.commanded.stream_id": event.stream_id,
-      "messaging.commanded.stream_version": event.stream_version
+      "commanded.application": meta.application,
+      "commanded.causation_id": event.causation_id,
+      "commanded.correlation_id": event.correlation_id,
+      "commanded.event": event.event_type,
+      "commanded.event_id": event.event_id,
+      "commanded.event_number": event.event_number,
+      "commanded.stream_id": event.stream_id,
+      "commanded.stream_version": event.stream_version
     ]
 
     OpentelemetryTelemetry.start_telemetry_span(
@@ -77,7 +71,7 @@ defmodule OpentelemetryCommanded.EventStore do
       "commanded.event_store.#{action}",
       meta,
       %{
-        kind: :consumer,
+        kind: :internal,
         attributes: attributes
       }
     )

@@ -39,7 +39,7 @@ defmodule OpentelemetryCommanded.EventHandlerTest do
 
       assert match?(
                %{
-                 "messaging.commanded.event":
+                 "commanded.event":
                    "Elixir.OpentelemetryCommanded.DummyApp.Events.OkEvent"
                },
                attributes
@@ -70,7 +70,7 @@ defmodule OpentelemetryCommanded.EventHandlerTest do
 
       assert match?(
                %{
-                 "messaging.commanded.event":
+                 "commanded.event":
                    "Elixir.OpentelemetryCommanded.DummyApp.Events.ErrorInEventHandlerEvent"
                },
                attributes
@@ -104,7 +104,7 @@ defmodule OpentelemetryCommanded.EventHandlerTest do
 
       assert match?(
                %{
-                 "messaging.commanded.event":
+                 "commanded.event":
                    "Elixir.OpentelemetryCommanded.DummyApp.Events.ExceptionInEventHandlerEvent"
                },
                attributes
@@ -138,19 +138,20 @@ defmodule OpentelemetryCommanded.EventHandlerTest do
   defp has_basic_attributes!(attributes, correlation_id) do
     assert match?(
              %{
-               "messaging.commanded.application": OpentelemetryCommanded.DummyApp.App,
+               "commanded.application": OpentelemetryCommanded.DummyApp.App,
+               "commanded.causation_id": _,
+               "commanded.correlation_id": ^correlation_id,
+               "commanded.event_id": _,
+               "commanded.event_number": 1,
+               "commanded.handler_name": "EventHandler",
+               "commanded.stream_id": "ACC123",
+               "commanded.stream_version": 1,
                "messaging.conversation_id": ^correlation_id,
                "messaging.destination": OpentelemetryCommanded.DummyApp.EventHandler,
                "messaging.destination_kind": "event_handler",
                "messaging.message_id": _,
                "messaging.operation": "receive",
-               "messaging.protocol": "cqrs",
-               "messaging.system": "commanded",
-               "messaging.commanded.event_id": _,
-               "messaging.commanded.event_number": 1,
-               "messaging.commanded.handler_name": "EventHandler",
-               "messaging.commanded.stream_id": "ACC123",
-               "messaging.commanded.stream_version": 1
+               "messaging.system": "commanded"
              },
              attributes
            )

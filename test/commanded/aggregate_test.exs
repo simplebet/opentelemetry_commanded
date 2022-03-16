@@ -38,7 +38,7 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert match?(
                %{
-                 "messaging.commanded.command": OpentelemetryCommanded.DummyApp.Commands.Ok
+                 "commanded.command": OpentelemetryCommanded.DummyApp.Commands.Ok
                },
                attributes
              )
@@ -66,7 +66,7 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert match?(
                %{
-                 "messaging.commanded.command": OpentelemetryCommanded.DummyApp.Commands.Error
+                 "commanded.command": OpentelemetryCommanded.DummyApp.Commands.Error
                },
                attributes
              )
@@ -96,7 +96,7 @@ defmodule OpentelemetryCommanded.AggregateTest do
 
       assert match?(
                %{
-                 "messaging.commanded.command":
+                 "commanded.command":
                    OpentelemetryCommanded.DummyApp.Commands.RaiseException
                },
                attributes
@@ -130,17 +130,18 @@ defmodule OpentelemetryCommanded.AggregateTest do
   defp has_basic_attributes!(attributes, correlation_id) do
     assert match?(
              %{
-               "messaging.commanded.aggregate_uuid": "ACC123",
-               "messaging.commanded.aggregate_version": 0,
-               "messaging.commanded.application": OpentelemetryCommanded.DummyApp.App,
-               "messaging.commanded.command": _,
-               "messaging.commanded.function": :handle,
+               "commanded.aggregate_uuid": "ACC123",
+               "commanded.aggregate_version": 0,
+               "commanded.application": OpentelemetryCommanded.DummyApp.App,
+               "commanded.causation_id": _,
+               "commanded.command": _,
+               "commanded.correlation_id": ^correlation_id,
+               "commanded.function": :handle,
                "messaging.conversation_id": ^correlation_id,
                "messaging.destination": OpentelemetryCommanded.DummyApp.Handler,
                "messaging.destination_kind": "aggregate",
                "messaging.message_id": _,
                "messaging.operation": "receive",
-               "messaging.protocol": "cqrs",
                "messaging.system": "commanded"
              },
              attributes

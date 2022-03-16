@@ -69,7 +69,7 @@ defmodule OpentelemetryCommanded.Aggregate do
     ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
     events = Map.get(meta, :events, [])
-    Span.set_attribute(ctx, :"messaging.commanded.event_count", Enum.count(events))
+    Span.set_attribute(ctx, :"commanded.event_count", Enum.count(events))
 
     if error = meta[:error] do
       Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))

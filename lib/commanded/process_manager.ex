@@ -75,7 +75,7 @@ defmodule OpentelemetryCommanded.ProcessManager do
     ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
     commands = Map.get(meta, :commands, [])
-    Span.set_attribute(ctx, :"messaging.commanded.command_count", Enum.count(commands))
+    Span.set_attribute(ctx, :"commanded.command_count", Enum.count(commands))
 
     if error = meta[:error] do
       Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))

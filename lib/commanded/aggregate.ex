@@ -34,19 +34,23 @@ defmodule OpentelemetryCommanded.Aggregate do
 
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
-    trace_headers = decode_headers(context.metadata["trace_ctx"])
-    :otel_propagator_text_map.extract(trace_headers)
+
+    safe_context_propagation(context.metadata["trace_ctx"])
 
     attributes = [
-      "command.type": struct_name(context.command),
-      "command.handler": context.handler,
-      "aggregate.uuid": meta.aggregate_uuid,
-      "aggregate.version": meta.aggregate_version,
-      application: meta.application,
-      "causation.id": context.causation_id,
-      "correlation.id": context.correlation_id,
-      "aggregate.function": context.function,
-      "aggregate.lifespan": context.lifespan
+      "commanded.aggregate_uuid": meta.aggregate_uuid,
+      "commanded.aggregate_version": meta.aggregate_version,
+      "commanded.application": meta.application,
+      "commanded.causation_id": context.causation_id,
+      "commanded.command": struct_name(context.command),
+      "commanded.correlation_id": context.correlation_id,
+      "commanded.function": context.function,
+      "messaging.conversation_id": context.correlation_id,
+      "messaging.destination": context.handler,
+      "messaging.destination_kind": "aggregate",
+      "messaging.message_id": context.causation_id,
+      "messaging.operation": "receive",
+      "messaging.system": "commanded"
     ]
 
     OpentelemetryTelemetry.start_telemetry_span(
@@ -65,7 +69,7 @@ defmodule OpentelemetryCommanded.Aggregate do
     ctx = OpentelemetryTelemetry.set_current_telemetry_span(@tracer_id, meta)
 
     events = Map.get(meta, :events, [])
-    Span.set_attribute(ctx, :"event.count", Enum.count(events))
+    Span.set_attribute(ctx, :"commanded.event_count", Enum.count(events))
 
     if error = meta[:error] do
       Span.set_status(ctx, OpenTelemetry.status(:error, inspect(error)))

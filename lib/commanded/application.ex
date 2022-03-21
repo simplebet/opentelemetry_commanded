@@ -28,14 +28,20 @@ defmodule OpentelemetryCommanded.Application do
   def handle_start(_event, _, meta, _) do
     context = meta.execution_context
 
+    safe_context_propagation(context.metadata["trace_ctx"])
+
     attributes = [
-      "command.type": struct_name(context.command),
-      "command.handler": context.handler,
-      application: meta.application,
-      "causation.id": context.causation_id,
-      "correlation.id": context.correlation_id,
-      "aggregate.function": context.function,
-      "aggregate.lifespan": context.lifespan
+      "commanded.application": meta.application,
+      "commanded.causation_id": context.causation_id,
+      "commanded.command": struct_name(context.command),
+      "commanded.correlation_id": context.correlation_id,
+      "commanded.function": context.function,
+      "messaging.conversation_id": context.correlation_id,
+      "messaging.destination": context.handler,
+      "messaging.destination_kind": "command_handler",
+      "messaging.message_id": context.causation_id,
+      "messaging.operation": "receive",
+      "messaging.system": "commanded"
     ]
 
     OpentelemetryTelemetry.start_telemetry_span(

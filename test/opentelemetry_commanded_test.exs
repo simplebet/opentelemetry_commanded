@@ -1,8 +1,14 @@
 defmodule OpentelemetryCommandedTest do
-  use ExUnit.Case
+  use ExUnit.Case, async: false
   doctest OpentelemetryCommanded
 
   test "sets it up!" do
-    assert OpentelemetryCommanded.setup() == :ok
+    running? =
+      case OpentelemetryCommanded.setup() do
+        :ok -> true
+        {:error, :already_exists} -> true
+      end
+
+    assert running?
   end
 end

@@ -1,6 +1,16 @@
 defmodule OpentelemetryCommanded.Util do
   @moduledoc false
 
+  def safe_context_propagation(trace_ctx) when is_nil(trace_ctx) do
+    nil
+  end
+
+  def safe_context_propagation(trace_ctx) do
+    trace_ctx
+    |> decode_headers()
+    |> :otel_propagator_text_map.extract()
+  end
+
   def encode_headers(headers), do: Enum.map(headers, &Tuple.to_list/1)
 
   def decode_headers(headers), do: Enum.map(headers, &List.to_tuple/1)

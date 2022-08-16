@@ -19,30 +19,27 @@ defmodule OpentelemetryCommanded.EventStore do
       read_snapshot
       record_snapshot
       stream_forward
-      stream_forward
-      stream_forward
       subscribe
-      subscribe_to
       subscribe_to
       unsubscribe
     )a
     |> Enum.each(fn event ->
       :telemetry.attach(
-        {__MODULE__, :start},
+        {__MODULE__, event, :start},
         [:commanded, :event_store, event, :start],
         &__MODULE__.handle_start/4,
         []
       )
 
       :telemetry.attach(
-        {__MODULE__, :stop},
+        {__MODULE__, event, :stop},
         [:commanded, :event_store, event, :stop],
         &__MODULE__.handle_stop/4,
         []
       )
 
       :telemetry.attach(
-        {__MODULE__, :exception},
+        {__MODULE__, event, :exception},
         [:commanded, :event_store, event, :exception],
         &__MODULE__.handle_exception/4,
         []

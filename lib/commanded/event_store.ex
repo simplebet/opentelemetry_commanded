@@ -19,30 +19,27 @@ defmodule OpentelemetryCommanded.EventStore do
       read_snapshot
       record_snapshot
       stream_forward
-      stream_forward
-      stream_forward
       subscribe
-      subscribe_to
       subscribe_to
       unsubscribe
     )a
     |> Enum.each(fn event ->
       :telemetry.attach(
-        {__MODULE__, :start},
+        {__MODULE__, event, :start},
         [:commanded, :event_store, event, :start],
         &__MODULE__.handle_start/4,
         []
       )
 
       :telemetry.attach(
-        {__MODULE__, :stop},
+        {__MODULE__, event, :stop},
         [:commanded, :event_store, event, :stop],
         &__MODULE__.handle_stop/4,
         []
       )
 
       :telemetry.attach(
-        {__MODULE__, :exception},
+        {__MODULE__, event, :exception},
         [:commanded, :event_store, event, :exception],
         &__MODULE__.handle_exception/4,
         []
@@ -51,20 +48,10 @@ defmodule OpentelemetryCommanded.EventStore do
   end
 
   def handle_start([_, _, action, _type], _measurements, meta, _) do
-    event = meta.event
-
-    safe_context_propagation(event.metadata["trace_ctx"])
-
-    attributes = [
-      "commanded.application": meta.application,
-      "commanded.causation_id": event.causation_id,
-      "commanded.correlation_id": event.correlation_id,
-      "commanded.event": event.event_type,
-      "commanded.event_id": event.event_id,
-      "commanded.event_number": event.event_number,
-      "commanded.stream_id": event.stream_id,
-      "commanded.stream_version": event.stream_version
-    ]
+    # TODO: how do we keep the trace context for telemetry events that don't have this value?
+    if trace_ctx = get_in(meta, [:event, Access.key!(:metadata), "trace_ctx"]) do
+      safe_context_propagation(trace_ctx)
+    end
 
     OpentelemetryTelemetry.start_telemetry_span(
       @tracer_id,
@@ -72,7 +59,7 @@ defmodule OpentelemetryCommanded.EventStore do
       meta,
       %{
         kind: :internal,
-        attributes: attributes
+        attributes: attributes(action, meta)
       }
     )
   end
@@ -104,4 +91,26 @@ defmodule OpentelemetryCommanded.EventStore do
 
     OpentelemetryTelemetry.end_telemetry_span(@tracer_id, meta)
   end
+
+  def attributes(:ack_event, meta) do
+    event = meta.event
+    [
+      "commanded.application": meta.application,
+      "commanded.causation_id": event.causation_id,
+      "commanded.correlation_id": event.correlation_id,
+      "commanded.event": event.event_type,
+      "commanded.event_id": event.event_id,
+      "commanded.event_number": event.event_number,
+      "commanded.stream_id": event.stream_id,
+      "commanded.stream_version": event.stream_version
+    ]
+  end
+
+  def attributes(telemetry_event, meta) do
+    # Generic default: put all scalar metadata in span attributes
+    for {meta_key, meta_val} <- meta, is_binary(meta_val) or is_number(meta_val), into: [] do
+      {"commanded.#{meta_key}", meta_val}
+    end
+  end
+
 end

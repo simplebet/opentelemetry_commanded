@@ -10,9 +10,10 @@ defmodule OpentelemetryCommanded.MixProject do
       start_permanent: Mix.env() == :prod,
       package: package(),
       deps: deps(),
-      description: "Trace Commanded CRQS operations with OpenTelemetry",
+      description: "Trace Commanded CQRS operations with OpenTelemetry",
       source_url: "https://github.com/SimpleBet/opentelemetry_commanded",
-      homepage_url: "https://github.com/SimpleBet/opentelemetry_commanded"
+      homepage_url: "https://github.com/SimpleBet/opentelemetry_commanded",
+      docs: docs()
     ]
   end
 
@@ -39,16 +40,28 @@ defmodule OpentelemetryCommanded.MixProject do
 
   defp deps do
     [
-      {:commanded,
-        github: "commanded/commanded",
-        ref: "75b19cb3a994aa36984b63bd9b5bffab4d6f8310"},
-#      {:commanded, "~> 1.3.1"},
-      {:opentelemetry_telemetry, "~> 1.0.0-beta.7"},
+      {:commanded, "~> 1.4"},
+      {:opentelemetry_telemetry, "~> 1.0"},
       {:telemetry, "~> 1.0"},
       {:opentelemetry, "~> 1.0"},
+
+      # Testing
       {:jason, "~> 1.2", only: :test},
       {:ecto, "~> 3.7.1", only: :test},
-      {:ex_doc, "~> 0.23.0", only: [:dev], runtime: false}
+
+      # Tools
+      {:ex_doc, ">= 0.0.0", only: [:dev], runtime: false}
+    ]
+  end
+
+  defp docs do
+    [
+      main: "readme",
+      skip_undefined_reference_warnings_on: ["CHANGELOG.md"],
+      extras: [
+        "README.md",
+        "CHANGELOG.md"
+      ]
     ]
   end
 end
